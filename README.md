@@ -45,7 +45,7 @@ Fast, offline sanity check of just the routing logic (no downloads):
 
 ```bash
 cd orbitdesk-agent
-pip install langgraph pydantic numpy pytest
+pip install langgraph pydantic numpy pytest 
 python cli.py --sample --mock
 pytest -q
 ```
