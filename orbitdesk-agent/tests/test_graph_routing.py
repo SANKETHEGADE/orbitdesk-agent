@@ -18,7 +18,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
-import pytest  # noqa: E402
+import pytest  
 
 from orbitdesk_agent.graph import build_graph, run_question  # noqa: E402
 
@@ -35,9 +35,7 @@ def node_sequence(state) -> list[str]:
     return [entry["node"] for entry in state["node_log"]]
 
 
-# ---------------------------------------------------------------------------
-# Test case 1: directly answerable question -> single doc/case is enough
-# ---------------------------------------------------------------------------
+
 def test_directly_answerable_routes_through_full_pipeline(app):
     state = run_question(
         app, "T-001", "I am a read-only Viewer. Can I create an API credential for a reporting script?"
@@ -51,9 +49,7 @@ def test_directly_answerable_routes_through_full_pipeline(app):
     assert resp["requires_human"] is False
 
 
-# ---------------------------------------------------------------------------
-# Test case 2: question requiring evidence from (at least) two documents
-# ---------------------------------------------------------------------------
+
 def test_answer_pulls_evidence_from_multiple_documents(app):
     state = run_question(
         app,
@@ -69,9 +65,7 @@ def test_answer_pulls_evidence_from_multiple_documents(app):
     assert state["retrieval_top_score"] > 0
 
 
-# ---------------------------------------------------------------------------
-# Test case 3: ambiguous question requiring clarification
-# ---------------------------------------------------------------------------
+
 def test_vague_question_routes_to_clarification(app):
     state = run_question(app, "T-003", "Our data sync is not working. Can you tell me how to fix it?")
     assert state["classification"] == "requires_clarification"
@@ -82,9 +76,7 @@ def test_vague_question_routes_to_clarification(app):
     assert "retrieved" not in state
 
 
-# ---------------------------------------------------------------------------
-# Test case 4: out-of-scope request (also a prompt-injection attempt)
-# ---------------------------------------------------------------------------
+
 def test_out_of_scope_request_is_safely_declined(app):
     state = run_question(
         app,
@@ -99,9 +91,7 @@ def test_out_of_scope_request_is_safely_declined(app):
     assert resp["sources"] == []
 
 
-# ---------------------------------------------------------------------------
-# Test case 5: initial generated answer fails verification -> retry -> pass
-# ---------------------------------------------------------------------------
+
 def test_failed_verification_triggers_retry_then_succeeds(app):
     state = run_question(
         app, "T-005", "FORCE_BAD_DRAFT what should I check about my scheduled export timezone?"
@@ -116,9 +106,7 @@ def test_failed_verification_triggers_retry_then_succeeds(app):
     assert resp["classification"] == "answerable"
 
 
-# ---------------------------------------------------------------------------
-# Escalation routing (bonus path beyond the 5 required cases)
-# ---------------------------------------------------------------------------
+
 def test_escalation_signal_routes_to_escalation_with_requires_human(app):
     state = run_question(
         app,
@@ -132,9 +120,7 @@ def test_escalation_signal_routes_to_escalation_with_requires_human(app):
     assert resp["requires_human"] is True
 
 
-# ---------------------------------------------------------------------------
-# Loop-protection: even a pathological case never exceeds max attempts
-# ---------------------------------------------------------------------------
+
 def test_generation_attempts_never_exceed_configured_max(app):
     from orbitdesk_agent.config import GRAPH_CONFIG
 
@@ -144,9 +130,7 @@ def test_generation_attempts_never_exceed_configured_max(app):
     assert state["generation_attempts"] <= GRAPH_CONFIG.max_generation_attempts
 
 
-# ---------------------------------------------------------------------------
-# Every route produces a schema-conformant final_response
-# ---------------------------------------------------------------------------
+
 @pytest.mark.parametrize(
     "question",
     [
