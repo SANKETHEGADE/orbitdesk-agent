@@ -34,7 +34,7 @@ class RealEmbedder(BaseEmbedder):
     """Wraps sentence-transformers/all-MiniLM-L6-v2 (or config override)."""
 
     def __init__(self) -> None:
-        from sentence_transformers import SentenceTransformer  # local import: heavy dependency
+        from sentence_transformers import SentenceTransformer 
 
         self.name = MODEL_CONFIG.embedding_model_name
         t0 = time.time()
