@@ -50,10 +50,7 @@ VAGUE_TRIGGER_PATTERNS = [
     r"\bplease fix\b",
 ]
 
-# If any of these specific, diagnosable terms are present, the question is
-# considered specific enough even if it also contains a generic complaint
-# phrase (e.g. "render_failed twice" is specific despite containing no vague
-# words at all; this list mainly prevents false positives).
+.
 SPECIFIC_SIGNAL_PATTERNS = [
     r"\btimezone\b",
     r"\bapi credential\b",
