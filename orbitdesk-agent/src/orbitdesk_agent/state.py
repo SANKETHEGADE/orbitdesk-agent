@@ -12,7 +12,7 @@ from typing import Any, Dict, List, Optional, TypedDict
 
 
 class RetrievedChunk(TypedDict):
-    source_id: str          # KB-00x or CASE-xxxx
+    source_id: str         
     title: str
     text: str
     score: float
@@ -25,32 +25,31 @@ class NodeLogEntry(TypedDict):
 
 
 class AgentState(TypedDict, total=False):
-    # ---- input ----
+    
     question_id: str
     question: str
 
-    # ---- triage output ----
-    classification: str            # answerable | requires_clarification | requires_escalation | out_of_scope
+    
+    classification: str           
     triage_reason: str
-    triage_flags: List[str]        # e.g. ["prompt_injection_attempt", "vague_symptom"]
-
-    # ---- retrieval output ----
+    triage_flags: List[str]       
+   
     retrieved: List[RetrievedChunk]
     retrieval_top_score: float
 
-    # ---- generation output ----
+   
     draft_answer: str
     draft_sources: List[Dict[str, str]]
     draft_confidence: float
     generation_attempts: int
 
-    # ---- verification output ----
+    
     verification_passed: bool
     verification_issues: List[str]
 
-    # ---- final structured output ----
+    
     final_response: Dict[str, Any]
 
-    # ---- orchestration bookkeeping ----
+    
     node_log: List[NodeLogEntry]
-    route: str                     # last routing decision, used by conditional edges
+    route: str                    
