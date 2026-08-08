@@ -15,7 +15,7 @@ from .embeddings import BaseEmbedder, cosine_sim_matrix
 from .kb import Chunk, load_all_chunks
 from .state import RetrievedChunk
 
-
+ 
 class Retriever:
     def __init__(self, data_dir: Path, embedder: BaseEmbedder) -> None:
         self.embedder = embedder
