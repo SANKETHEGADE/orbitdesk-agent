@@ -22,9 +22,7 @@ from .triage_rules import classify as triage_classify
 from .verification_rules import verify_draft
 
 
-# ---------------------------------------------------------------------------
-# 1. Triage
-# ---------------------------------------------------------------------------
+
 def triage_node(state: AgentState) -> Dict[str, Any]:
     result = triage_classify(state["question"])
     return {
@@ -43,12 +41,10 @@ def route_after_triage(state: AgentState) -> str:
         return "out_of_scope"
     if c == "requires_clarification":
         return "requires_clarification"
-    return "proceed"  # answerable or requires_escalation both need retrieval
+    return "proceed" 
 
 
-# ---------------------------------------------------------------------------
-# 2. Retrieval
-# ---------------------------------------------------------------------------
+
 def retrieval_node(state: AgentState, retriever: Retriever) -> Dict[str, Any]:
     results = retriever.search(state["question"])
     top_score = results[0]["score"] if results else 0.0
@@ -63,13 +59,10 @@ def retrieval_node(state: AgentState, retriever: Retriever) -> Dict[str, Any]:
     }
 
 
-# ---------------------------------------------------------------------------
-# 3. Response generation
-# ---------------------------------------------------------------------------
+
 def generation_node(state: AgentState, generator: BaseGenerator) -> Dict[str, Any]:
     attempts = state.get("generation_attempts", 0) + 1
-    # Deterministic filter: never hand superseded case resolutions to the
-    # model as if they were current guidance.
+   
     evidence = [c for c in state.get("retrieved", []) if not c["superseded"]]
 
     revision_note = None
@@ -91,9 +84,7 @@ def generation_node(state: AgentState, generator: BaseGenerator) -> Dict[str, An
     }
 
 
-# ---------------------------------------------------------------------------
-# 4. Verification
-# ---------------------------------------------------------------------------
+
 def verification_node(state: AgentState) -> Dict[str, Any]:
     evidence = [c for c in state.get("retrieved", []) if not c["superseded"]]
     result = verify_draft(state.get("draft_answer", ""), evidence)
@@ -114,9 +105,7 @@ def route_after_verification(state: AgentState) -> str:
     return "retry"
 
 
-# ---------------------------------------------------------------------------
-# Clarification / safe-response / safe-failure terminal branches
-# ---------------------------------------------------------------------------
+
 def clarification_node(state: AgentState) -> Dict[str, Any]:
     question = state["question"]
     if "sync" in question.lower():
@@ -167,9 +156,7 @@ def safe_failure_node(state: AgentState) -> Dict[str, Any]:
     }
 
 
-# ---------------------------------------------------------------------------
-# Finalize: assemble + validate the schema-conformant structured output
-# ---------------------------------------------------------------------------
+
 def finalize_node(state: AgentState) -> Dict[str, Any]:
     classification = state["classification"]
     verification_passed = state.get("verification_passed")
@@ -201,7 +188,7 @@ def finalize_node(state: AgentState) -> Dict[str, Any]:
         clar_q = None
         warnings.extend(state.get("verification_issues", []))
     else:
-        final_classification = classification  # answerable | requires_escalation
+        final_classification = classification 
         requires_human = classification == "requires_escalation"
         top_score = state.get("retrieval_top_score", 0.0)
         confidence = round(min(0.95, max(0.3, top_score)), 2)
@@ -225,8 +212,7 @@ def finalize_node(state: AgentState) -> Dict[str, Any]:
         "warnings": warnings,
     }
 
-    # Validate against the pydantic schema (mirrors output_schema.json) --
-    # raises if we ever produce a non-conformant payload.
+  
     validated = AgentResponse(**payload)
 
     return {
